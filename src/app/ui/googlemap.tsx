@@ -5,10 +5,12 @@ import {
     APIProvider, 
     InfoWindow, 
     Map,
-    useAdvancedMarkerRef
+    useAdvancedMarkerRef,
+    useMap
 } from "@vis.gl/react-google-maps";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LiaBicycleSolid } from "react-icons/lia";
+import GetStationsData from "../lib/bikedata";
 
 
 export default function StonyMap(){
@@ -26,29 +28,38 @@ export default function StonyMap(){
         }
     }
 
-    const stationList = [
-        new BasicStation("LIRR", 40.920029, -73.128253),
-        new BasicStation("Library", 40.916063, -73.123487),
-        new BasicStation("West Side Dining Station", 40.912488, -73.130267),
-        new BasicStation("Javits", 40.913415, -73.12142),
-        new BasicStation("West Apartments I", 40.913337, -73.134329),
-        new BasicStation("Life Sciences", 40.911341, -73.120833),
-        new BasicStation("South Campus", 40.9045, -73.1212),
-        new BasicStation("James College", 40.919144, -73.120874),
-        new BasicStation("South P Lot", 40.896691, -73.126439),
-        new BasicStation("Tabler Quad", 40.910046, -73.124813),
-        new BasicStation("SAC", 40.91441, -73.124648),
-        new BasicStation("Wang Center", 40.916383, -73.118282),
-        new BasicStation("West Apartments C", 40.911724, -73.132897),
-        new BasicStation("Athletic Fields", 40.92148, -73.126721),
-    ]
+    // StationMarkers: Populates Map with markers for every station asynchronously.
+    const StationMarkers = () => {
+        const map = useMap();
+        const [markers, setMarkers] = useState(<></>)
+        
+        useEffect(() => {
+            if (!map) return;
+            const fetchStationMarkers = async() => {
+                const stations = await GetStationsData();
+                setMarkers(
+                    <>
+                        {stations.map((station: any) => (
+                            <StationMarker name={station.name} lat={station.latitude} lng={station.longitude} />
+                        ))}
+                    </>
+                )
+            }
+            fetchStationMarkers();
+        }, [map])
 
+        return markers;
+    }
+
+    // StationMarker: AdvancedMarker component with the UI and functionaly markers representing a station.
     function StationMarker(station : BasicStation) {
         const [infoWindowVisible, setInfoWindowVisible] = useState(false);
         const [markerRef, marker] = useAdvancedMarkerRef();
+
         function handleClick() {
             setInfoWindowVisible(!infoWindowVisible);
         }
+
         return(
             <>
             <AdvancedMarker ref={markerRef} position={{lat:station.lat, lng:station.lng}} title={station.name} onClick={handleClick}>
@@ -78,10 +89,8 @@ export default function StonyMap(){
                     streetViewControl={false}
                     gestureHandling={"cooperative"}
                 >  
-                {stationList.map(station => (
-                     <StationMarker key={station.name} name={station.name} lat={station.lat} lng={station.lng} />
-                ))}  
                 </Map>
+                <StationMarkers />
             </div>
             
         </APIProvider>
