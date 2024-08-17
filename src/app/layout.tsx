@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./ui/globals.css";
+import Navbar from "./ui/navbar";
 
-const inter = Inter({ subsets: ["latin"] });
+const notosans = Noto_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Wolfie Ride Availability",
@@ -16,7 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={notosans.className}>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }
