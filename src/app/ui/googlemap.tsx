@@ -1,7 +1,13 @@
-"use client";
+"use client"
 
-import { AdvancedMarker, APIProvider, Map, Pin } from "@vis.gl/react-google-maps";
-import GetStationsData from "../lib/bikedata";
+import { 
+    AdvancedMarker, 
+    APIProvider, 
+    InfoWindow, 
+    Map,
+    useAdvancedMarkerRef
+} from "@vis.gl/react-google-maps";
+import { useState } from "react";
 import { LiaBicycleSolid } from "react-icons/lia";
 
 
@@ -36,6 +42,28 @@ export default function StonyMap(){
         new BasicStation("West Apartments C", 40.911724, -73.132897),
         new BasicStation("Athletic Fields", 40.92148, -73.126721),
     ]
+
+    function StationMarker(station : BasicStation) {
+        const [infoWindowVisible, setInfoWindowVisible] = useState(false);
+        const [markerRef, marker] = useAdvancedMarkerRef();
+        function handleClick() {
+            setInfoWindowVisible(!infoWindowVisible);
+        }
+        return(
+            <>
+            <AdvancedMarker ref={markerRef} position={{lat:station.lat, lng:station.lng}} title={station.name} onClick={handleClick}>
+                <div className="text-3xl hover:text-4xl p-1 bg-[#ffffffd3] hover:bg-[#ffffff] border-[#991b1bb4] hover:border-[#991b1b] transition-colors duration-100 border-[2px] rounded-full drop-shadow-2xl">
+                    <LiaBicycleSolid />    
+                </div>
+            </AdvancedMarker>
+            {infoWindowVisible && (
+                <InfoWindow anchor={marker} onClose={handleClick}>
+                    <h1 className="text-xl">{station.name}</h1>
+                </InfoWindow>
+            )}
+            </>
+        )
+    }
     
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
@@ -49,19 +77,13 @@ export default function StonyMap(){
                     mapId={process.env.NEXT_PUBLIC_MAP_ID}
                     streetViewControl={false}
                     gestureHandling={"cooperative"}
-                    disableDefaultUI={true}
                 >  
                 {stationList.map(station => (
-                     <AdvancedMarker key={station.name} position={{lat:station.lat, lng:station.lng}}>
-                        <div className="text-3xl p-1 bg-[#ffffffd3] border-red-800 border-[2px] rounded-full drop-shadow-2xl">
-                            <LiaBicycleSolid />    
-                        </div>
-                    </AdvancedMarker>
+                     <StationMarker key={station.name} name={station.name} lat={station.lat} lng={station.lng} />
                 ))}  
-               
-
                 </Map>
             </div>
+            
         </APIProvider>
     );
 }
