@@ -21,10 +21,12 @@ export default function StonyMap(){
         name: string;
         lat: number;
         lng: number;
-        constructor(name:string, lat:number, lng:number) {
+        bikes: number;
+        constructor(name:string, lat:number, lng:number, bikes:number) {
             this.name = name;
             this.lat = lat;
             this.lng = lng;
+            this.bikes = bikes;
         }
     }
 
@@ -40,7 +42,7 @@ export default function StonyMap(){
                 setMarkers(
                     <>
                         {stations.map((station: any) => (
-                            <StationMarker name={station.name} lat={station.latitude} lng={station.longitude} />
+                            <StationMarker key={station.name} name={station.name} lat={station.latitude} lng={station.longitude} bikes={station.free_bikes}/>
                         ))}
                     </>
                 )
@@ -55,10 +57,13 @@ export default function StonyMap(){
     function StationMarker(station : BasicStation) {
         const [infoWindowVisible, setInfoWindowVisible] = useState(false);
         const [markerRef, marker] = useAdvancedMarkerRef();
+        const nonempty = station.bikes > 0 ? true : false;
 
         function handleClick() {
             setInfoWindowVisible(!infoWindowVisible);
         }
+
+        
 
         return(
             <>
@@ -70,6 +75,13 @@ export default function StonyMap(){
             {infoWindowVisible && (
                 <InfoWindow anchor={marker} onClose={handleClick}>
                     <h1 className="text-xl">{station.name}</h1>
+                    <div className={`flex text-xl items-center justify-center gap-2 bg-[#e2e8f0] rounded-full`}>
+                        <LiaBicycleSolid />
+                        <p className={nonempty ? "text-green-600" : ""}>
+                            {station.bikes}
+                        </p>
+                        
+                    </div>
                 </InfoWindow>
             )}
             </>
@@ -78,7 +90,7 @@ export default function StonyMap(){
     
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-            <div className="h-[90vh] w-full border-2 drop-shadow-lg">
+            <div className="h-[90vh] lg:h-full w-full border-2 drop-shadow-lg">
                 <Map 
                     defaultZoom={15}
                         minZoom={14} 
