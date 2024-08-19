@@ -16,6 +16,8 @@ import GetStationsData from "../lib/bikedata";
 export default function StonyMap(){
 
     const centerPosition = {lat: 40.914088, lng: -73.124957}; // Coordinates of the Student Activity Centers
+    const api_key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const map_id = process.env.NEXT_PUBLIC_MAP_ID;
 
     class BasicStation {
         name: string;
@@ -89,7 +91,7 @@ export default function StonyMap(){
     }
     
     return (
-        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
+        <APIProvider apiKey={api_key!}>
             <div className="h-[90vh] lg:h-full w-full border-2 drop-shadow-lg">
                 <Map 
                     defaultZoom={15}
@@ -97,7 +99,7 @@ export default function StonyMap(){
                         maxZoom={19}
                         zoomControl={true}
                     defaultCenter={centerPosition}
-                    mapId={process.env.NEXT_PUBLIC_MAP_ID}
+                    mapId={map_id}
                     streetViewControl={false}
                     gestureHandling={"cooperative"}
                 >  
